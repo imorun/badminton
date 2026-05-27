@@ -20,12 +20,13 @@ function dirName(deg) {
 }
 
 /* =========================
-   現在位置取得
+   現在位置取得（GPS → IP → DEFAULT）
 ========================= */
 async function getLocation() {
-    return new Promise((resolve) => {
+    // ① GPS（最優先）
+    const gpsPromise = new Promise((resolve) => {
         if (!navigator.geolocation) {
-            resolve(DEFAULT_LOCATION);
+            resolve(null);
             return;
         }
 
@@ -34,17 +35,39 @@ async function getLocation() {
                 resolve({
                     lat: pos.coords.latitude,
                     lon: pos.coords.longitude,
-                    name: "現在位置"
+                    name: "現在位置(GPS)"
                 });
             },
-            () => resolve(DEFAULT_LOCATION),
+            () => resolve(null),
             {
                 enableHighAccuracy: true,
-                timeout: 5000,
+                timeout: 4000,
                 maximumAge: 0
             }
         );
     });
+
+    const gps = await gpsPromise;
+    if (gps) return gps;
+
+    // ② IP 位置情報（GPS が拒否 or 失敗した場合）
+    try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+
+        if (data && data.latitude && data.longitude) {
+            return {
+                lat: data.latitude,
+                lon: data.longitude,
+                name: data.city || "現在位置(IP)"
+            };
+        }
+    } catch (e) {
+        console.warn("IP位置情報取得失敗", e);
+    }
+
+    // ③ DEFAULT（最終手段）
+    return DEFAULT_LOCATION;
 }
 
 /* =========================
@@ -107,7 +130,6 @@ function updateWeatherUI(temp, humidity, windSpeed, windDeg) {
 function updateResult(temp, humidity, windSpeed) {
     let result = "";
 
-    // 快適度判定（1 = 1km/h）
     if (
         temp >= 20 && temp <= 24 &&
         humidity >= 40 && humidity <= 60 &&
@@ -131,7 +153,6 @@ function updateResult(temp, humidity, windSpeed) {
         result = "🙂 普通";
     }
 
-    // 風コメント（km/h 基準）
     if (windSpeed >= 30) {
         result += " / 非常に強風";
     } else if (windSpeed >= 20) {
