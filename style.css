@@ -22,9 +22,11 @@ body {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -55,10 +57,12 @@ h1 {
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-8px);
   }
@@ -117,6 +121,7 @@ h1 {
     opacity: 0;
     transform: translateY(40px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -169,6 +174,23 @@ h1 {
   overflow: hidden;
   margin-top: 20px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+#orientation-btn {
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#orientation-btn:hover {
+  transform: scale(1.05);
+  background: #1d4ed8;
 }
 
 iframe {

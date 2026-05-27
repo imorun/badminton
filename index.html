@@ -28,9 +28,7 @@
     </div>
 
     <div class="container">
-
         <section id="weather">
-
             <h1>バドミントン快適チェッカー</h1>
 
             <div class="location">
@@ -66,9 +64,7 @@
             </div>
 
             <div class="info">
-
                 <table>
-
                     <tr>
                         <th>条件</th>
                         <th>評価</th>
@@ -93,48 +89,35 @@
                         <td>14℃以下</td>
                         <td>🥶 寒い</td>
                     </tr>
-
                 </table>
-
             </div>
-
         </section>
 
         <section id="map">
-
             <h1>🗺 現在位置マップ</h1>
-
             <div class="map-box">
-
                 <iframe src="https://maps.google.com/maps?q=35.6327937,139.5504509&z=16&output=embed">
                 </iframe>
-
             </div>
-
         </section>
 
         <section id="sensor">
-
+            <button id="orientation-btn" onclick="enableOrientation()">
+                方向センサーを有効化
+            </button>
             <h1>🧭 方向センサー</h1>
-
             <div class="sensor">
-
                 <div class="arrow" id="sensorArrow">
                     ⬆
                 </div>
-
                 <h2 id="sensorDeg">
                     0°
                 </h2>
-
                 <p>
                     スマホを回転すると方向が変わります
                 </p>
-
             </div>
-
         </section>
-
     </div>
     <script src="script.js"></script>
 </body>

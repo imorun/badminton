@@ -279,19 +279,6 @@ async function enableOrientation() {
     window.addEventListener("deviceorientation", handleOrientation);
 }
 
-// ページにボタンを追加（自動で）
-window.addEventListener("load", () => {
-    const btn = document.createElement("button");
-    btn.textContent = "方向センサーを有効化";
-    btn.style.padding = "10px 20px";
-    btn.style.margin = "10px";
-    btn.style.fontSize = "16px";
-    btn.onclick = enableOrientation;
-
-    document.body.appendChild(btn);
-});
-
-
 /* =========================
    開始
 ========================= */
