@@ -248,6 +248,10 @@ if (canvas) {
 /* =========================
    方向センサー
 ========================= */
+/* =========================
+   方向センサー（iOS対応）
+========================= */
+
 const sensorArrow = document.getElementById("sensorArrow");
 const sensorDeg = document.getElementById("sensorDeg");
 
@@ -258,9 +262,38 @@ function handleOrientation(e) {
     if (sensorDeg) sensorDeg.textContent = Math.round(deg) + "°";
 }
 
-if (typeof DeviceOrientationEvent !== "undefined") {
+// iOS の許可ボタンを作成
+async function enableOrientation() {
+    if (typeof DeviceOrientationEvent === "undefined") {
+        alert("このブラウザは方向センサーに対応していません");
+        return;
+    }
+
+    // iOS の場合は許可が必要
+    if (DeviceOrientationEvent.requestPermission) {
+        const permission = await DeviceOrientationEvent.requestPermission();
+        if (permission !== "granted") {
+            alert("方向センサーの利用が許可されませんでした");
+            return;
+        }
+    }
+
+    // 許可されたらイベント開始
     window.addEventListener("deviceorientation", handleOrientation);
 }
+
+// ページにボタンを追加（自動で）
+window.addEventListener("load", () => {
+    const btn = document.createElement("button");
+    btn.textContent = "方向センサーを有効化";
+    btn.style.padding = "10px 20px";
+    btn.style.margin = "10px";
+    btn.style.fontSize = "16px";
+    btn.onclick = enableOrientation;
+
+    document.body.appendChild(btn);
+});
+
 
 /* =========================
    開始
