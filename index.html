@@ -105,16 +105,35 @@
             <button id="orientation-btn" onclick="enableOrientation()">
                 方向センサーを有効化
             </button>
-            <h1>🧭 方向センサー</h1>
-            <div class="sensor">
-                <div class="arrow" id="sensorArrow">
-                    ⬆
+            <h1>🧭 方角と風向き</h1>
+            <div class="sensor-container">
+                <div class="compass">
+                    <div class="compass-rose" id="compassRose">
+                        <div class="mark north">北</div>
+                        <div class="mark east">東</div>
+                        <div class="mark south">南</div>
+                        <div class="mark west">西</div>
+                    </div>
+                    <div class="needle device-needle">
+                        <div class="needle-label">自分</div>
+                    </div>
+                    <div class="needle wind-needle" id="windNeedle">
+                        <div class="needle-label">風</div>
+                    </div>
                 </div>
-                <h2 id="sensorDeg">
-                    0°
-                </h2>
-                <p>
-                    スマホを回転すると方向が変わります
+                
+                <div class="sensor-info">
+                    <div class="info-item">
+                        <span class="label">自分の向き:</span>
+                        <span class="value" id="deviceHeading">--</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">風の向き:</span>
+                        <span class="value" id="windDirection">--</span>
+                    </div>
+                </div>
+                <p class="hint">
+                    スマホを水平に持ち、風の吹いてくる方向を確認しましょう
                 </p>
             </div>
         </section>

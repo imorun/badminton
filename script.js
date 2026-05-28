@@ -68,6 +68,7 @@ async function getLocation() {
 
     // ③ DEFAULT（最終手段）
     return DEFAULT_LOCATION;
+    enableOrientation();
 }
 
 /* =========================
@@ -246,37 +247,79 @@ if (canvas) {
 }
 
 /* =========================
-   方向センサー（iOS対応）
+   方向センサー（iOS/Android対応）
 ========================= */
 
-const sensorArrow = document.getElementById("sensorArrow");
-const sensorDeg = document.getElementById("sensorDeg");
+const compassRose = document.getElementById("compassRose");
+const windNeedle = document.getElementById("windNeedle");
+const deviceHeadingEl = document.getElementById("deviceHeading");
+const windDirectionEl = document.getElementById("windDirection");
 
 function handleOrientation(e) {
-    const deg = e.alpha || 0;
+    let heading = 0;
 
-    if (sensorArrow) sensorArrow.style.transform = `rotate(${deg}deg)`;
-    if (sensorDeg) sensorDeg.textContent = Math.round(deg) + "°";
+    // iOS (Safari) のコンパス方向
+    if (e.webkitCompassHeading) {
+        heading = e.webkitCompassHeading;
+    } 
+    // Android (Chrome) の絶対方向
+    else if (e.absolute && e.alpha !== null) {
+        heading = (360 - e.alpha) % 360;
+    } 
+    // フォールバック（相対的な動きのみ）
+    else {
+        heading = e.alpha || 0;
+    }
+
+    // コンパスの盤面を回転（北を固定するため自分の向きの逆回転）
+    if (compassRose) {
+        compassRose.style.transform = `rotate(${-heading}deg)`;
+    }
+
+    // 風の針を回転（風向きは絶対値なので、盤面回転に合わせて調整）
+    if (windNeedle) {
+        // 風の吹いてくる方向に向ける
+        windNeedle.style.transform = `rotate(${windDeg - heading}deg)`;
+    }
+
+    // テキスト表示の更新
+    if (deviceHeadingEl) {
+        deviceHeadingEl.textContent = dirName(heading) + ` (${Math.round(heading)}°)`;
+    }
+    if (windDirectionEl) {
+        windDirectionEl.textContent = dirName(windDeg) + ` (${Math.round(windDeg)}°)`;
+    }
 }
 
-// iOS の許可ボタンを作成
+// 許可ボタンの処理
 async function enableOrientation() {
-    if (typeof DeviceOrientationEvent === "undefined") {
-        alert("このブラウザは方向センサーに対応していません");
-        return;
-    }
 
-    // iOS の場合は許可が必要
-    if (DeviceOrientationEvent.requestPermission) {
-        const permission = await DeviceOrientationEvent.requestPermission();
-        if (permission !== "granted") {
-            alert("方向センサーの利用が許可されませんでした");
-            return;
+    const btn = document.getElementById("orientation-btn");
+
+    try {
+        // iOS の場合は許可が必要
+        if (typeof DeviceOrientationEvent.requestPermission === "function") {
+            const permission = await DeviceOrientationEvent.requestPermission();
+            if (permission !== "granted") {
+                alert("方向センサーの利用が許可されませんでした");
+                return;
+            }
         }
-    }
 
-    // 許可されたらイベント開始
-    window.addEventListener("deviceorientation", handleOrientation);
+        // センサーイベントの登録
+        // Android/Chrome は deviceorientationabsolute を優先
+        if ("ondeviceorientationabsolute" in window) {
+            window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+        } else {
+            window.addEventListener("deviceorientation", handleOrientation, true);
+        }
+
+        if (btn) btn.style.display = "none";
+
+    } catch (e) {
+        console.error(e);
+        alert("センサーの初期化に失敗しました");
+    }
 }
 
 /* =========================
