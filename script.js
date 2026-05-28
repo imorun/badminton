@@ -182,19 +182,43 @@ function updateMap(lat, lon) {
 }
 
 /* =========================
-   ページ切り替え
+   ページ切り替え（スライド）
 ========================= */
-function showPage(id) {
-    const sections = document.querySelectorAll("section");
-    sections.forEach(sec => {
-        sec.classList.remove("active");
-    });
+const pageOrder = ['weather', 'map', 'sensor'];
+let currentPageId = 'weather';
 
-    const target = document.getElementById(id);
-    if (target) {
-        target.classList.add("active");
-        window.scrollTo(0, 0);
+function showPage(nextId) {
+    if (nextId === currentPageId) return;
+
+    const currentIdx = pageOrder.indexOf(currentPageId);
+    const nextIdx = pageOrder.indexOf(nextId);
+    const direction = nextIdx > currentIdx ? 'next' : 'back';
+
+    const currentEl = document.getElementById(currentPageId);
+    const nextEl = document.getElementById(nextId);
+
+    // アニメーションクラスをリセット
+    currentEl.classList.remove('active', 'slide-out-left', 'slide-out-right', 'slide-in-left', 'slide-in-right');
+    nextEl.classList.remove('active', 'slide-out-left', 'slide-out-right', 'slide-in-left', 'slide-in-right');
+
+    if (direction === 'next') {
+        // 次のページへ：現在のページが左へ消え、次のページが右から来る
+        currentEl.classList.add('active', 'slide-out-left');
+        nextEl.classList.add('active', 'slide-in-right');
+    } else {
+        // 前のページへ：現在のページが右へ消え、前のページが左から来る
+        currentEl.classList.add('active', 'slide-out-right');
+        nextEl.classList.add('active', 'slide-in-left');
     }
+
+    // アニメーション終了後に状態を確定
+    setTimeout(() => {
+        currentEl.classList.remove('active', 'slide-out-left', 'slide-out-right');
+        nextEl.classList.remove('slide-in-left', 'slide-in-right');
+        currentPageId = nextId;
+    }, 400);
+
+    window.scrollTo(0, 0);
 }
 
 /* =========================

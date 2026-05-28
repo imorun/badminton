@@ -51,23 +51,46 @@ canvas {
   padding: 12px;
   max-width: 800px;
   margin: 0 auto;
+  overflow-x: hidden; /* スライド時のはみ出し防止 */
 }
 
 section {
-  display: none; /* ページ切り替え用: 初期状態は非表示 */
+  display: none;
+  width: 100%;
   min-height: calc(100vh - 40px);
   padding-top: 20px;
-  padding-bottom: 100px; /* 下部ナビ用 */
+  padding-bottom: 100px;
+  box-sizing: border-box;
 }
 
 section.active {
-  display: block; /* アクティブなページのみ表示 */
-  animation: fadeIn 0.4s ease;
+  display: block;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* スライド用アニメーションクラス */
+.slide-in-right { animation: slideInRight 0.4s ease-out forwards; }
+.slide-in-left  { animation: slideInLeft 0.4s ease-out forwards; }
+.slide-out-right { animation: slideOutRight 0.4s ease-out forwards; position: absolute; top: 20px; width: calc(100% - 24px); }
+.slide-out-left  { animation: slideOutLeft 0.4s ease-out forwards; position: absolute; top: 20px; width: calc(100% - 24px); }
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes slideOutLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 0; }
 }
 
 h1 {
