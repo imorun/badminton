@@ -14,15 +14,16 @@
     <canvas id="canvas"></canvas>
 
     <div class="topbar">
-        <button onclick="showPage('weather')">
+        <div class="nav-pill" id="navPill"></div>
+        <button onclick="showPage('weather')" class="active" id="btn-weather">
             天気
         </button>
 
-        <button onclick="showPage('map')">
+        <button onclick="showPage('map')" id="btn-map">
             地図
         </button>
 
-        <button onclick="showPage('sensor')">
+        <button onclick="showPage('sensor')" id="btn-sensor">
             センサー
         </button>
     </div>
@@ -32,7 +33,7 @@
             <h1>バドミントン快適チェッカー</h1>
 
             <div class="location">
-                35.6327937 , 139.5504509
+                現在位置を確認中...
             </div>
 
             <div class="weather-grid">

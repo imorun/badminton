@@ -126,22 +126,34 @@ h1 {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.nav-pill {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  height: calc(100% - 16px);
+  width: calc((100% - 16px - 16px) / 3); /* ボタン3つ分 + gap考慮 */
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
 .topbar button {
   flex: 1;
   border: none;
   padding: 12px 8px;
   border-radius: 999px;
   background: transparent;
-  color: white;
+  color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   transition: 0.3s;
   font-size: 13px;
   font-weight: bold;
+  z-index: 1;
 }
 
-.topbar button:active {
-  transform: scale(0.9);
-  background: rgba(255, 255, 255, 0.1);
+.topbar button.active {
+  color: white;
 }
 
 /* =========================
@@ -167,12 +179,6 @@ h1 {
   border-radius: 20px;
   padding: 16px;
   text-align: center;
-  animation: fadeUp 0.8s ease;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .label {
