@@ -48,49 +48,40 @@ canvas {
 .container {
   position: relative;
   z-index: 2;
-  padding: 12px;
   max-width: 800px;
   margin: 0 auto;
-  overflow-x: hidden; /* スライド時のはみ出し防止 */
+  overflow-x: hidden;
+  padding: 0; /* paddingをsectionへ移動 */
 }
 
 section {
   display: none;
   width: 100%;
   min-height: calc(100vh - 40px);
-  padding-top: 20px;
-  padding-bottom: 100px;
+  padding: 20px 12px 100px 12px; /* 横余白をここで確保 */
   box-sizing: border-box;
+  transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1), opacity 0.4s ease;
+  will-change: transform, opacity;
 }
 
 section.active {
   display: block;
 }
 
-/* スライド用アニメーションクラス */
-.slide-in-right { animation: slideInRight 0.4s ease-out forwards; }
-.slide-in-left  { animation: slideInLeft 0.4s ease-out forwards; }
-.slide-out-right { animation: slideOutRight 0.4s ease-out forwards; position: absolute; top: 20px; width: calc(100% - 24px); }
-.slide-out-left  { animation: slideOutLeft 0.4s ease-out forwards; position: absolute; top: 20px; width: calc(100% - 24px); }
-
-@keyframes slideInRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+/* スワイプ中の特別スタイル */
+.swiping section {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-@keyframes slideInLeft {
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+.swiping section.active {
+  position: relative; /* 高さを維持するためアクティブ要素はrelative */
 }
 
-@keyframes slideOutRight {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(100%); opacity: 0; }
-}
-
-@keyframes slideOutLeft {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(-100%); opacity: 0; }
+.no-transition {
+  transition: none !important;
 }
 
 h1 {

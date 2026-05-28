@@ -29,7 +29,7 @@ function dirName(deg) {
 ========================= */
 async function getLocation() {
     console.log("位置情報を取得中...");
-    
+
     // ① GPS（最優先）
     const gpsPromise = new Promise((resolve) => {
         if (!navigator.geolocation) {
@@ -155,7 +155,7 @@ function updateWeatherUI(temp, humidity, windSpeed, windDeg, gusts) {
     if (humidityEl) {
         humidityEl.textContent = (humidity !== null && humidity !== undefined) ? Math.round(humidity) + "%" : "--";
     }
-    
+
     // 風速と突風を表示 (m/s)
     if (windEl) {
         const speedStr = (windSpeed !== null && windSpeed !== undefined) ? windSpeed.toFixed(1) : "--";
@@ -165,7 +165,7 @@ function updateWeatherUI(temp, humidity, windSpeed, windDeg, gusts) {
             <div style="font-size: 0.6em; opacity: 0.8; margin-top: 4px;">(最大: ${gustStr} m/s)</div>
         `;
     }
-    
+
     if (winddirEl) {
         const dirStr = (windDeg !== null && windDeg !== undefined) ? dirName(windDeg) : "--";
         const degStr = (windDeg !== null && windDeg !== undefined) ? `(${Math.round(windDeg)}°)` : "";
@@ -245,49 +245,69 @@ function updateMap(lat, lon) {
 const pageOrder = ['weather', 'map', 'sensor'];
 let currentPageId = 'weather';
 
-function showPage(nextId) {
-    if (nextId === currentPageId) return;
-
-    const currentIdx = pageOrder.indexOf(currentPageId);
-    const nextIdx = pageOrder.indexOf(nextId);
-    const direction = nextIdx > currentIdx ? 'next' : 'back';
-
+function showPage(nextId, skipAnimation = false) {
+    const container = document.querySelector('.container');
     const currentEl = document.getElementById(currentPageId);
     const nextEl = document.getElementById(nextId);
+    const nextIdx = pageOrder.indexOf(nextId);
+    const currentIdx = pageOrder.indexOf(currentPageId);
 
     // ナビゲーションの更新
     const navPill = document.getElementById('navPill');
     const buttons = document.querySelectorAll('.topbar button');
     buttons.forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`btn-${nextId}`).classList.add('active');
+    const activeBtn = document.getElementById(`btn-${nextId}`);
+    if (activeBtn) activeBtn.classList.add('active');
 
     if (navPill) {
-        // ボタンの幅+gap分だけ移動
         const movePercent = nextIdx * 100;
-        const gapOffset = nextIdx * 8; // gap: 8px
+        const gapOffset = nextIdx * 8;
         navPill.style.transform = `translateX(calc(${movePercent}% + ${gapOffset}px))`;
     }
 
-    // アニメーションクラスをリセット
-    currentEl.classList.remove('active', 'slide-out-left', 'slide-out-right', 'slide-in-left', 'slide-in-right');
-    nextEl.classList.remove('active', 'slide-out-left', 'slide-out-right', 'slide-in-left', 'slide-in-right');
+    if (nextId === currentPageId && !skipAnimation) return;
 
-    if (direction === 'next') {
-        currentEl.classList.add('active', 'slide-out-left');
-        nextEl.classList.add('active', 'slide-in-right');
-    } else {
-        currentEl.classList.add('active', 'slide-out-right');
-        nextEl.classList.add('active', 'slide-in-left');
+    if (skipAnimation) {
+        // レイアウトを確定
+        pageOrder.forEach(id => {
+            const el = document.getElementById(id);
+            el.classList.remove('active', 'no-transition');
+            el.style.transform = '';
+            el.style.display = '';
+        });
+        nextEl.classList.add('active');
+        currentPageId = nextId;
+        container.classList.remove('swiping');
+        return;
     }
 
-    // アニメーション終了後に状態を確定
-    setTimeout(() => {
-        currentEl.classList.remove('active', 'slide-out-left', 'slide-out-right');
-        nextEl.classList.remove('slide-in-left', 'slide-in-right');
-        currentPageId = nextId;
-    }, 400);
+    // 通常のクリック切り替えアニメーション
+    const direction = nextIdx > currentIdx ? 1 : -1;
+    container.classList.add('swiping');
 
-    window.scrollTo(0, 0);
+    pageOrder.forEach(id => {
+        const el = document.getElementById(id);
+        if (id !== currentPageId) {
+            el.style.display = 'none';
+            el.style.transform = '';
+        }
+    });
+
+    nextEl.style.transition = 'none';
+    nextEl.style.transform = `translateX(${direction * 100}%)`;
+    nextEl.style.display = 'block';
+
+    setTimeout(() => {
+        nextEl.style.transition = '';
+        currentEl.style.transform = `translateX(${-direction * 100}%)`;
+        nextEl.style.transform = 'translateX(0)';
+
+        setTimeout(() => {
+            showPage(nextId, true);
+        }, 400);
+    }, 20);
+
+    if (nextId !== currentPageId) window.scrollTo(0, 0);
 }
 
 /* =========================
@@ -365,11 +385,11 @@ function handleOrientation(e) {
     // iOS (Safari) のコンパス方向
     if (e.webkitCompassHeading) {
         heading = e.webkitCompassHeading;
-    } 
+    }
     // Android (Chrome) の絶対方向
     else if (e.absolute && e.alpha !== null) {
         heading = (360 - e.alpha) % 360;
-    } 
+    }
     // フォールバック（相対的な動きのみ）
     else {
         heading = e.alpha || 0;
@@ -421,11 +441,132 @@ async function enableOrientation() {
 }
 
 /* =========================
-   開始
+   スワイプ操作 (リアルタイム)
 ========================= */
-function startWeatherLoop() {
-    loadWeather();
-    setInterval(loadWeather, 60000);
-}
+let touchStartX = 0;
+let touchCurrentX = 0;
+let isSwiping = false;
 
-startWeatherLoop();
+document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].clientX;
+    isSwiping = false;
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+    touchCurrentX = e.changedTouches[0].clientX;
+    const diffX = touchCurrentX - touchStartX;
+    const container = document.querySelector('.container');
+    const width = container.offsetWidth;
+
+    if (!isSwiping && Math.abs(diffX) > 10) {
+        isSwiping = true;
+        container.classList.add('swiping');
+    }
+
+    if (isSwiping) {
+        const currentIdx = pageOrder.indexOf(currentPageId);
+        const currentEl = document.getElementById(currentPageId);
+
+        currentEl.style.transform = `translateX(${diffX}px)`;
+        currentEl.classList.add('no-transition');
+
+        pageOrder.forEach((id, idx) => {
+            if (id === currentPageId) return;
+            const el = document.getElementById(id);
+            const offset = (idx - currentIdx) * width;
+
+            if (Math.abs(idx - currentIdx) <= 1) {
+                el.style.transform = `translateX(${offset + diffX}px)`;
+                el.style.display = 'block';
+                el.classList.add('no-transition');
+            } else {
+                el.style.display = 'none';
+            }
+        });
+    }
+}, { passive: false });
+
+document.addEventListener('touchend', e => {
+    if (!isSwiping) return;
+
+    const diffX = e.changedTouches[0].clientX - touchStartX;
+    const container = document.querySelector('.container');
+    const width = container.offsetWidth;
+    const threshold = width * 0.2; // 20%以上動かしたら切り替え
+
+    const currentIdx = pageOrder.indexOf(currentPageId);
+    let nextIdx = currentIdx;
+
+    if (diffX < -threshold && currentIdx < pageOrder.length - 1) {
+        nextIdx++;
+    } else if (diffX > threshold && currentIdx > 0) {
+        nextIdx--;
+    }
+
+    const nextId = pageOrder[nextIdx];
+    const currentEl = document.getElementById(currentPageId);
+
+    // 【最適化】ナビゲーションの見た目だけを即座に更新して、指を離した瞬間に反応させる
+    const navPill = document.getElementById('navPill');
+    const buttons = document.querySelectorAll('.topbar button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`btn-${nextId}`);
+    if (activeBtn) activeBtn.classList.add('active');
+    if (navPill) {
+        const movePercent = nextIdx * 100;
+        const gapOffset = nextIdx * 8;
+        navPill.style.transform = `translateX(calc(${movePercent}% + ${gapOffset}px))`;
+    }
+
+    // トランジションを再有効化
+    pageOrder.forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('no-transition');
+    });
+
+    // 最終目的地へアニメーション
+    if (nextId !== currentPageId) {
+        const direction = nextIdx > currentIdx ? 1 : -1;
+        currentEl.style.transform = `translateX(${-direction * 100}%)`;
+        document.getElementById(nextId).style.transform = 'translateX(0)';
+    } else {
+        currentEl.style.transform = 'translateX(0)';
+        pageOrder.forEach((id, idx) => {
+            if (id === currentPageId) return;
+            const el = document.getElementById(id);
+            const offset = (idx - currentIdx) * width;
+            el.style.transform = `translateX(${offset}px)`;
+        });
+    }
+
+    // アニメーション完了後にDOMの状態を整理
+    setTimeout(() => {
+        showPage(nextId, true);
+    }, 400);
+
+    isSwiping = false;
+}, { passive: true });
+
+/* =========================
+    開始
+========================= */
+
+let weatherInterval;
+
+function startWeatherTimer() {
+    loadWeather();
+    // 既存のタイマーがあればクリアして重複を防ぐ
+    if (weatherInterval) {
+        clearInterval(weatherInterval);
+    }
+
+    // 1分(60000ms)ごとに実行
+    weatherInterval = setInterval(loadWeather, 360000);
+}
+window.addEventListener('pagehide', (event) => {
+    if (event.persisted === false) {
+        clearInterval(weatherInterval);
+    }
+});
+
+startWeatherTimer();
