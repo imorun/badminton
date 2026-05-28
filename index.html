@@ -14,21 +14,21 @@
     <canvas id="canvas"></canvas>
 
     <div class="topbar">
-        <button onclick="scrollToSection('weather')">
+        <button onclick="showPage('weather')">
             天気
         </button>
 
-        <button onclick="scrollToSection('map')">
+        <button onclick="showPage('map')">
             地図
         </button>
 
-        <button onclick="scrollToSection('sensor')">
+        <button onclick="showPage('sensor')">
             センサー
         </button>
     </div>
 
     <div class="container">
-        <section id="weather">
+        <section id="weather" class="active">
             <h1>バドミントン快適チェッカー</h1>
 
             <div class="location">

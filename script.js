@@ -182,11 +182,19 @@ function updateMap(lat, lon) {
 }
 
 /* =========================
-   スクロール
+   ページ切り替え
 ========================= */
-function scrollToSection(id) {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+function showPage(id) {
+    const sections = document.querySelectorAll("section");
+    sections.forEach(sec => {
+        sec.classList.remove("active");
+    });
+
+    const target = document.getElementById(id);
+    if (target) {
+        target.classList.add("active");
+        window.scrollTo(0, 0);
+    }
 }
 
 /* =========================

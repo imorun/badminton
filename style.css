@@ -54,9 +54,20 @@ canvas {
 }
 
 section {
-  min-height: 100vh;
-  padding-top: 80px; /* ナビ用 */
-  padding-bottom: 40px;
+  display: none; /* ページ切り替え用: 初期状態は非表示 */
+  min-height: calc(100vh - 40px);
+  padding-top: 20px;
+  padding-bottom: 100px; /* 下部ナビ用 */
+}
+
+section.active {
+  display: block; /* アクティブなページのみ表示 */
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 h1 {
