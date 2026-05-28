@@ -1,3 +1,15 @@
+/* =========================
+   共通変数 & 基本設定
+========================= */
+:root {
+  --primary-blue: #4facfe;
+  --accent-yellow: #feca57;
+  --danger-red: #ff4757;
+  --glass-bg: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.25);
+  --text-main: white;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -8,28 +20,18 @@ html {
 
 body {
   margin: 0;
-  font-family: sans-serif;
-  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--text-main);
   overflow-x: hidden;
-
   background: linear-gradient(270deg, #1e3c72, #2a5298, #4facfe, #00f2fe);
-
   background-size: 800% 800%;
   animation: bgMove 18s ease infinite;
 }
 
 @keyframes bgMove {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 canvas {
@@ -37,160 +39,161 @@ canvas {
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  opacity: 0.6;
 }
 
+/* =========================
+   レイアウト
+========================= */
 .container {
   position: relative;
   z-index: 2;
-  padding: 20px;
+  padding: 12px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 section {
   min-height: 100vh;
-  padding-top: 30px;
+  padding-top: 80px; /* ナビ用 */
+  padding-bottom: 40px;
 }
 
 h1 {
   text-align: center;
-  font-size: 42px;
+  font-size: 26px;
+  margin-bottom: 20px;
   animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-8px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
+/* =========================
+   ナビゲーション (スマホは下、PCは上)
+========================= */
 .topbar {
   position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 10;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 400px;
+  z-index: 100;
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  padding: 12px;
-  backdrop-filter: blur(12px);
-  background: rgba(0, 0, 0, 0.2);
+  justify-content: space-around;
+  gap: 8px;
+  padding: 8px;
+  backdrop-filter: blur(18px);
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .topbar button {
+  flex: 1;
   border: none;
-  padding: 10px 18px;
+  padding: 12px 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
+  background: transparent;
   color: white;
   cursor: pointer;
   transition: 0.3s;
+  font-size: 13px;
+  font-weight: bold;
 }
 
-.topbar button:hover {
-  transform: scale(1.08);
-  background: rgba(255, 255, 255, 0.28);
+.topbar button:active {
+  transform: scale(0.9);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* =========================
+   天気カード
+========================= */
+.location {
+  text-align: center;
+  font-size: 13px;
+  opacity: 0.8;
+  margin-bottom: 20px;
 }
 
 .weather-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .card {
   backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 20px;
-  padding: 20px;
+  padding: 16px;
   text-align: center;
-  transition: 0.3s;
-  animation: fadeUp 1s ease;
-}
-
-.card:hover {
-  transform: translateY(-5px) scale(1.03);
+  animation: fadeUp 0.8s ease;
 }
 
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .label {
-  opacity: 0.8;
+  font-size: 12px;
+  opacity: 0.7;
 }
 
 .value {
-  font-size: 38px;
-  margin-top: 10px;
+  font-size: 24px;
+  margin-top: 6px;
   font-weight: bold;
 }
 
 #result {
-  margin-top: 20px;
+  margin-top: 16px;
   padding: 20px;
   border-radius: 20px;
   text-align: center;
-  font-size: 28px;
+  font-size: 20px;
   font-weight: bold;
   backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
 }
 
+/* =========================
+   表とマップ
+========================= */
 .info {
-  margin-top: 25px;
-  padding: 20px;
+  margin-top: 20px;
+  padding: 16px;
   border-radius: 20px;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
+  overflow-x: auto;
 }
 
 .info table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 13px;
+  min-width: 300px;
 }
 
-.info th,
-.info td {
-  padding: 12px;
+.info th, .info td {
+  padding: 10px;
   text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .map-box {
-  height: 400px;
+  height: 280px;
   border-radius: 24px;
   overflow: hidden;
   margin-top: 20px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
-
-#orientation-btn {
-  padding: 10px 20px;
-  margin: 10px;
-  font-size: 16px;
-  border: none;
-  border-radius: 12px;
-  background: #2563eb;
-  color: white;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-#orientation-btn:hover {
-  transform: scale(1.05);
-  background: #1d4ed8;
 }
 
 iframe {
@@ -199,13 +202,30 @@ iframe {
   border: none;
 }
 
+/* =========================
+   方向センサー・コンパス
+========================= */
+#orientation-btn {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 16px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
 .sensor-container {
-  margin-top: 20px;
-  padding: 30px;
+  padding: 24px 16px;
   border-radius: 24px;
   text-align: center;
-  backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -214,12 +234,11 @@ iframe {
 
 .compass {
   position: relative;
-  width: 240px;
-  height: 240px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  background: rgba(0, 0, 0, 0.2);
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -229,27 +248,22 @@ iframe {
   position: absolute;
   width: 100%;
   height: 100%;
-  transition: transform 0.2s ease-out;
 }
 
 .mark {
   position: absolute;
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
   left: 50%;
-  margin-left: -15px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  margin-left: -10px;
   font-weight: bold;
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
 }
 
-.north { top: 10px; color: #ff4757; }
-.east  { right: 10px; top: 50%; margin-top: -15px; left: auto; }
+.north { top: 10px; color: var(--danger-red); }
+.east  { right: 10px; top: 50%; margin-top: -10px; left: auto; }
 .south { bottom: 10px; }
-.west  { left: 10px; top: 50%; margin-top: -15px; }
+.west  { left: 10px; top: 50%; margin-top: -10px; }
 
 .needle {
   position: absolute;
@@ -257,317 +271,81 @@ iframe {
   height: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
   pointer-events: none;
 }
 
 .needle::before {
   content: "";
   position: absolute;
-  top: 20px;
+  top: 15px;
   width: 4px;
-  height: 100px;
+  height: 85px;
   border-radius: 2px;
 }
 
 .needle::after {
   content: "▲";
   position: absolute;
-  top: 10px;
-  font-size: 20px;
+  top: 5px;
+  font-size: 18px;
 }
 
-.device-needle {
-  z-index: 3;
-}
+.device-needle::before { background: var(--primary-blue); }
+.device-needle::after  { color: var(--primary-blue); }
 
-.device-needle::before {
-  background: #4facfe;
-}
-
-.device-needle::after {
-  color: #4facfe;
-}
-
-.wind-needle {
-  z-index: 2;
-  transition: transform 0.5s ease-out;
-}
-
-.wind-needle::before {
-  background: #feca57;
-  height: 80px;
-  top: 40px;
-}
-
-.wind-needle::after {
-  color: #feca57;
-  top: 30px;
-}
+.wind-needle { transition: transform 0.5s ease-out; }
+.wind-needle::before { background: var(--accent-yellow); height: 70px; top: 30px; }
+.wind-needle::after  { color: var(--accent-yellow); top: 20px; }
 
 .needle-label {
   position: absolute;
-  top: -25px;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 12px;
-  white-space: nowrap;
+  top: -20px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 10px;
 }
 
 .sensor-info {
   display: flex;
-  gap: 20px;
+  gap: 12px;
   width: 100%;
-  justify-content: center;
 }
 
 .info-item {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 10px 15px;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 12px 8px;
+  border-radius: 16px;
   flex: 1;
-  max-width: 150px;
 }
 
-.info-item .label {
-  display: block;
-  font-size: 12px;
-  opacity: 0.7;
-  margin-bottom: 4px;
-}
+.info-item .label { display: block; font-size: 10px; margin-bottom: 4px; }
+.info-item .value { font-size: 16px; }
 
-.info-item .value {
-  font-size: 20px;
-  font-weight: bold;
-}
+.hint { font-size: 12px; opacity: 0.7; }
 
-.hint {
-  font-size: 14px;
-  opacity: 0.8;
-  margin: 0;
-}
-
-@media (max-width: 600px) {
-  .compass {
-    width: 200px;
-    height: 200px;
-  }
-  .mark {
-    font-size: 16px;
-  }
-}
-
-.location {
-  text-align: center;
-  opacity: 0.8;
-}
-
-/* ===== スマホ対応 ===== */
-
-@media (max-width: 900px) {
-  body {
-    font-size: 14px;
-  }
-
-  .container {
-    padding: 14px;
-  }
-
-  h1 {
-    font-size: 30px;
-    line-height: 1.2;
-  }
-
-  .weather-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    gap: 12px;
-  }
-
-  .card {
-    padding: 16px;
-    border-radius: 18px;
-  }
-
-  .value {
-    font-size: 28px;
-  }
-
-  .label {
-    font-size: 13px;
-  }
-
-  #result {
-    font-size: 20px;
-
-    padding: 16px;
-
-    border-radius: 18px;
-  }
-
-  .info {
-    overflow-x: auto;
-
-    padding: 14px;
-  }
-
-  .info table {
-    min-width: 500px;
-  }
-
-  .info th,
-  .info td {
-    font-size: 13px;
-
-    padding: 10px;
-
-    white-space: nowrap;
-  }
-
+/* =========================
+   デスクトップ向け調整 (タブレット以上)
+========================= */
+@media (min-width: 601px) {
+  .container { padding: 40px; }
+  h1 { font-size: 42px; }
+  
   .topbar {
-    gap: 8px;
-
-    padding: 10px;
-
-    flex-wrap: wrap;
+    top: 0; bottom: auto;
+    width: 100%; max-width: none;
+    border-radius: 0; transform: none; left: 0;
+    padding: 12px; background: rgba(0, 0, 0, 0.2);
   }
 
-  .topbar button {
-    font-size: 13px;
+  .topbar button { flex: none; padding: 10px 24px; font-size: 15px; }
+  .topbar button:hover { background: rgba(255, 255, 255, 0.15); }
 
-    padding: 10px 14px;
-  }
-
-  .map-box {
-    height: 320px;
-
-    border-radius: 20px;
-  }
-
-  .sensor {
-    padding: 16px;
-
-    border-radius: 18px;
-  }
-
-  .arrow {
-    font-size: 60px;
-  }
-}
-
-@media (max-width: 600px) {
-  body {
-    overflow-x: hidden;
-  }
-
-  .container {
-    padding: 12px;
-  }
-
-  section {
-    min-height: auto;
-
-    padding-top: 90px;
-
-    padding-bottom: 50px;
-  }
-
-  h1 {
-    font-size: 24px;
-
-    margin-bottom: 16px;
-  }
-
-  .weather-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .card {
-    padding: 18px 14px;
-  }
-
-  .value {
-    font-size: 24px;
-  }
-
-  #result {
-    margin-top: 16px;
-
-    font-size: 18px;
-  }
-
-  .location {
-    font-size: 12px;
-
-    word-break: break-all;
-  }
-
-  .topbar {
-    position: fixed;
-
-    bottom: 12px;
-
-    top: auto;
-
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    width: calc(100% - 20px);
-
-    border-radius: 999px;
-
-    justify-content: space-around;
-
-    padding: 10px;
-
-    background: rgba(0, 0, 0, 0.35);
-
-    backdrop-filter: blur(18px);
-  }
-
-  .topbar button {
-    flex: 1;
-
-    font-size: 12px;
-
-    padding: 12px 8px;
-
-    border-radius: 999px;
-  }
-
-  .map-box {
-    height: 260px;
-  }
-
-  .sensor {
-    margin-top: 14px;
-  }
-
-  .arrow {
-    font-size: 52px;
-  }
-
-  canvas {
-    opacity: 0.8;
-  }
-}
-
-@media (max-width: 380px) {
-  h1 {
-    font-size: 20px;
-  }
-
-  .value {
-    font-size: 20px;
-  }
-
-  #result {
-    font-size: 16px;
-  }
-
-  .topbar button {
-    font-size: 11px;
-  }
+  .weather-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+  .value { font-size: 34px; }
+  
+  .compass { width: 280px; height: 280px; }
+  .mark { font-size: 18px; }
+  .info-item .value { font-size: 22px; }
+  .map-box { height: 450px; }
 }
