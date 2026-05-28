@@ -123,6 +123,9 @@ function updateWeatherUI(temp, humidity, windSpeed, windDeg) {
 
     const arrow = document.getElementById("arrow");
     if (arrow) arrow.style.transform = `rotate(${windDeg}deg)`;
+
+    const windNeedleEl = document.getElementById("windNeedle");
+    if (windNeedleEl) windNeedleEl.style.transform = `rotate(${windDeg}deg)`;
 }
 
 /* =========================
@@ -274,12 +277,6 @@ function handleOrientation(e) {
     // コンパスの盤面を回転（北を固定するため自分の向きの逆回転）
     if (compassRose) {
         compassRose.style.transform = `rotate(${-heading}deg)`;
-    }
-
-    // 風の針を回転（風向きは絶対値なので、盤面回転に合わせて調整）
-    if (windNeedle) {
-        // 風の吹いてくる方向に向ける
-        windNeedle.style.transform = `rotate(${windDeg - heading}deg)`;
     }
 
     // テキスト表示の更新
