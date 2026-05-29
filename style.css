@@ -51,14 +51,14 @@ canvas {
   max-width: 800px;
   margin: 0 auto;
   overflow-x: hidden;
-  padding: 0; /* paddingをsectionへ移動 */
+  padding: 0;
 }
 
 section {
   display: none;
   width: 100%;
   min-height: calc(100vh - 40px);
-  padding: 20px 12px 100px 12px; /* 横余白をここで確保 */
+  padding: 20px 12px 120px 12px;
   box-sizing: border-box;
   transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1), opacity 0.4s ease;
   will-change: transform, opacity;
@@ -77,7 +77,7 @@ section.active {
 }
 
 .swiping section.active {
-  position: relative; /* 高さを維持するためアクティブ要素はrelative */
+  position: relative;
 }
 
 .no-transition {
@@ -97,7 +97,7 @@ h1 {
 }
 
 /* =========================
-   ナビゲーション (スマホは下、PCは上)
+   ナビゲーション
 ========================= */
 .topbar {
   position: fixed;
@@ -122,7 +122,7 @@ h1 {
   top: 8px;
   left: 8px;
   height: calc(100% - 16px);
-  width: calc((100% - 16px - 16px) / 3); /* ボタン3つ分 + gap考慮 */
+  width: calc((100% - 16px - 16px) / 3);
   background: rgba(255, 255, 255, 0.2);
   border-radius: 999px;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -154,45 +154,84 @@ h1 {
   text-align: center;
   font-size: 13px;
   opacity: 0.8;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+}
+
+.main-weather-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px;
+  border-radius: 28px;
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin-bottom: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.weather-icon {
+  font-size: 54px;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+}
+
+.weather-info {
+  text-align: left;
+}
+
+.weather-info .label {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 2px;
+}
+
+.weather-info .value {
+  font-size: 26px;
+  font-weight: 800;
 }
 
 .weather-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
 }
 
 .card {
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 16px;
+  border-radius: 24px;
+  padding: 16px 12px;
   text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .label {
-  font-size: 12px;
-  opacity: 0.7;
+  font-size: 11px;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
 }
 
 .value {
-  font-size: 24px;
-  margin-top: 6px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
 }
 
 #result {
   margin-top: 16px;
-  padding: 20px;
-  border-radius: 20px;
+  padding: 24px;
+  border-radius: 28px;
   text-align: center;
-  font-size: 20px;
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  font-size: 22px;
   font-weight: bold;
-  backdrop-filter: blur(12px);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
 }
 
 /* =========================
@@ -201,30 +240,31 @@ h1 {
 .info {
   margin-top: 20px;
   padding: 16px;
-  border-radius: 20px;
+  border-radius: 24px;
   background: var(--glass-bg);
   overflow-x: auto;
+  border: 1px solid var(--glass-border);
 }
 
 .info table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  min-width: 300px;
 }
 
 .info th, .info td {
-  padding: 10px;
+  padding: 12px 8px;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .map-box {
-  height: 280px;
-  border-radius: 24px;
+  height: 320px;
+  border-radius: 28px;
   overflow: hidden;
   margin-top: 20px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 iframe {
@@ -239,40 +279,41 @@ iframe {
 #orientation-btn {
   display: block;
   width: 100%;
-  padding: 16px;
-  margin-bottom: 20px;
+  padding: 18px;
+  margin-bottom: 24px;
   font-size: 16px;
   font-weight: bold;
   border: none;
-  border-radius: 16px;
-  background: #2563eb;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2563eb, #4facfe);
   color: white;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
 }
 
 .sensor-container {
-  padding: 24px 16px;
-  border-radius: 24px;
+  padding: 30px 16px;
+  border-radius: 32px;
   text-align: center;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
 }
 
 .compass {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 220px;
+  height: 220px;
   border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(0,0,0,0.5);
 }
 
 .compass-rose {
@@ -345,13 +386,24 @@ iframe {
 
 .info-item {
   background: rgba(255, 255, 255, 0.08);
-  padding: 12px 8px;
-  border-radius: 16px;
+  padding: 16px 10px;
+  border-radius: 20px;
   flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.info-item .label { display: block; font-size: 10px; margin-bottom: 4px; }
-.info-item .value { font-size: 16px; }
+.info-item .label {
+  display: block;
+  font-size: 10px;
+  opacity: 0.6;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.info-item .value {
+  font-size: 15px;
+  font-weight: 800;
+}
 
 .hint { font-size: 12px; opacity: 0.7; }
 
@@ -359,7 +411,7 @@ iframe {
    デスクトップ向け調整 (タブレット以上)
 ========================= */
 @media (min-width: 601px) {
-  .container { padding: 40px; }
+  .container { padding: 0 40px; }
   h1 { font-size: 42px; }
   
   .topbar {
