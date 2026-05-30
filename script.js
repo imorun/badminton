@@ -365,6 +365,12 @@ function updateBackgroundTheme() {
 function startWeatherTimer() {
     loadWeather();
     updateBackgroundTheme();
+
+    // 安全に呼び出し
+    if (typeof logBrowserInfo === 'function') {
+        logBrowserInfo();
+    }
+
     setInterval(() => {
         loadWeather();
         updateBackgroundTheme();
