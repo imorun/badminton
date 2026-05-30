@@ -104,7 +104,6 @@ function updateWeatherUI(temp, humidity, windSpeed, windDeg, gusts, code) {
     const iconEl = document.getElementById("weather-icon");
     const windDirTextEl = document.getElementById("windDirection");
 
-    // 【修正点】アイコンと名前を取得して反映
     const w = weatherCodes[code] || { name: "不明", icon: "❓" };
     if (weatherEl) weatherEl.textContent = w.name;
     if (iconEl) iconEl.textContent = w.icon;
@@ -221,23 +220,46 @@ function showPage(nextId, skipAnimation = false) {
     if (nextId !== currentPageId) window.scrollTo(0, 0);
 }
 
+/* =========================
+   スワイプ操作 (リアルタイム)
+========================= */
 let touchStartX = 0;
+let touchStartY = 0;
 let isSwiping = false;
+let isScrollingIntent = false;
 
 document.addEventListener('touchstart', e => {
     if (isTransitioning) return;
     touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
     isSwiping = false;
+    isScrollingIntent = false;
 }, { passive: true });
 
 document.addEventListener('touchmove', e => {
-    if (isTransitioning) return;
+    if (isTransitioning || isScrollingIntent) return;
+    
     const touchX = e.changedTouches[0].clientX;
+    const touchY = e.changedTouches[0].clientY;
     const diffX = touchX - touchStartX;
+    const diffY = touchY - touchStartY;
     const container = document.querySelector('.container');
     const width = container.offsetWidth;
-    if (!isSwiping && Math.abs(diffX) > 10) { isSwiping = true; container.classList.add('swiping'); }
+
+    if (!isSwiping && !isScrollingIntent) {
+        if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 5) {
+            isScrollingIntent = true;
+            return;
+        }
+        if (Math.abs(diffX) > 10) {
+            isSwiping = true;
+            container.classList.add('swiping');
+            document.body.classList.add('lock-scroll');
+        }
+    }
+
     if (isSwiping) {
+        e.preventDefault(); 
         const currentIdx = pageOrder.indexOf(currentPageId);
         const currentEl = document.getElementById(currentPageId);
         currentEl.style.transform = `translateX(${diffX}px)`;
@@ -248,6 +270,7 @@ document.addEventListener('touchmove', e => {
             if (Math.abs(idx - currentIdx) <= 1) {
                 const offset = (idx - currentIdx) * width;
                 el.style.transform = `translateX(${offset + diffX}px)`;
+                el.style.display = 'block';
                 el.classList.add('no-transition');
             }else {
                 el.style.display = 'none';
@@ -261,17 +284,26 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 
 document.addEventListener('touchend', e => {
+    if (isScrollingIntent) {
+        isScrollingIntent = false;
+        return;
+    }
     if (!isSwiping || isTransitioning) return;
+    
     const diffX = e.changedTouches[0].clientX - touchStartX;
     const width = document.querySelector('.container').offsetWidth;
     const currentIdx = pageOrder.indexOf(currentPageId);
     let nextIdx = currentIdx;
+
     if (diffX < -width * 0.2 && currentIdx < pageOrder.length - 1) nextIdx++;
     else if (diffX > width * 0.2 && currentIdx > 0) nextIdx--;
+
     const nextId = pageOrder[nextIdx];
     const currentEl = document.getElementById(currentPageId);
+
     pageOrder.forEach(id => document.getElementById(id).classList.remove('no-transition'));
     isTransitioning = true;
+
     if (nextId !== currentPageId) {
         const direction = nextIdx > currentIdx ? 1 : -1;
         currentEl.style.transform = `translateX(${-direction * 100}%)`;
@@ -284,10 +316,16 @@ document.addEventListener('touchend', e => {
             if (Math.abs(idx - currentIdx) <= 1) el.style.transform = `translateX(${(idx - currentIdx) * width}px)`;
         });
     }
+
     updateMenuUI(nextId);
-    setTimeout(() => { showPage(nextId, true); }, 400);
+    setTimeout(() => {
+        showPage(nextId, true);
+    }, 400);
+
+    document.body.classList.remove('lock-scroll'); 
     isSwiping = false;
-}, { passive: true });
+    isScrollingIntent = false;
+    }, { passive: true });
 
 const compassRose = document.getElementById("compassRose");
 const deviceHeadingTextEl = document.getElementById("deviceHeading");
@@ -314,31 +352,19 @@ async function enableOrientation() {
     } catch (e) { console.error(e); }
 }
 
-/* =========================
-   背景テーマの更新 (時間帯)
-========================= */
 function updateBackgroundTheme() {
     const hour = new Date().getHours();
     const body = document.body;
-    
-    // 全テーマを一度リセット
     body.classList.remove('theme-morning', 'theme-day', 'theme-evening', 'theme-night');
-    
-    if (hour >= 5 && hour < 9) {
-        body.classList.add('theme-morning');
-    } else if (hour >= 9 && hour < 17) {
-        body.classList.add('theme-day');
-    } else if (hour >= 17 && hour < 19) {
-        body.classList.add('theme-evening');
-    } else {
-        body.classList.add('theme-night');
-    }
+    if (hour >= 5 && hour < 9) body.classList.add('theme-morning');
+    else if (hour >= 9 && hour < 17) body.classList.add('theme-day');
+    else if (hour >= 17 && hour < 19) body.classList.add('theme-evening');
+    else body.classList.add('theme-night');
 }
 
 function startWeatherTimer() {
     loadWeather();
-    updateBackgroundTheme(); // 初回実行
-    // 5分ごとに天気と背景を更新
+    updateBackgroundTheme();
     setInterval(() => {
         loadWeather();
         updateBackgroundTheme();
