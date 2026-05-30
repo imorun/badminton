@@ -314,8 +314,34 @@ async function enableOrientation() {
     } catch (e) { console.error(e); }
 }
 
+/* =========================
+   背景テーマの更新 (時間帯)
+========================= */
+function updateBackgroundTheme() {
+    const hour = new Date().getHours();
+    const body = document.body;
+    
+    // 全テーマを一度リセット
+    body.classList.remove('theme-morning', 'theme-day', 'theme-evening', 'theme-night');
+    
+    if (hour >= 5 && hour < 9) {
+        body.classList.add('theme-morning');
+    } else if (hour >= 9 && hour < 17) {
+        body.classList.add('theme-day');
+    } else if (hour >= 17 && hour < 19) {
+        body.classList.add('theme-evening');
+    } else {
+        body.classList.add('theme-night');
+    }
+}
+
 function startWeatherTimer() {
     loadWeather();
-    setInterval(loadWeather, 300000);
+    updateBackgroundTheme(); // 初回実行
+    // 5分ごとに天気と背景を更新
+    setInterval(() => {
+        loadWeather();
+        updateBackgroundTheme();
+    }, 300000);
 }
 startWeatherTimer();

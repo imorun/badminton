@@ -12,6 +12,7 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
@@ -23,15 +24,36 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: var(--text-main);
   overflow-x: hidden;
-  background: linear-gradient(270deg, #1e3c72, #2a5298, #4facfe, #00f2fe);
-  background-size: 800% 800%;
-  animation: bgMove 18s ease infinite;
+  /* 2色で斜めに動かす設定 */
+  background-size: 200% 200%;
+  transition: background 2s ease;
+  min-height: 100vh;
+}
+
+/* --- 背景テーマ (2色・斜め) --- */
+body.theme-morning {
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  animation: bgMove 12s ease-in-out infinite alternate;
+}
+
+body.theme-day {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  animation: bgMove 15s ease-in-out infinite alternate;
+}
+
+body.theme-evening {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  animation: bgMove 10s ease-in-out infinite alternate;
+}
+
+body.theme-night {
+  background: linear-gradient(135deg, #09203f, #537895);
+  animation: bgMove 20s ease-in-out infinite alternate;
 }
 
 @keyframes bgMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
 }
 
 canvas {
@@ -39,11 +61,11 @@ canvas {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 /* =========================
-   レイアウト
+   レイアウト構造
 ========================= */
 .container {
   position: relative;
@@ -57,8 +79,8 @@ canvas {
 section {
   display: none;
   width: 100%;
-  min-height: calc(100vh - 40px);
-  padding: 20px 12px 120px 12px;
+  min-height: 100vh;
+  padding: 20px 16px 120px 16px;
   box-sizing: border-box;
   transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1), opacity 0.4s ease;
   will-change: transform, opacity;
@@ -68,7 +90,7 @@ section.active {
   display: block;
 }
 
-/* スワイプ中の特別スタイル */
+/* スワイプ中のスタイル */
 .swiping section {
   display: block;
   position: absolute;
@@ -87,13 +109,9 @@ section.active {
 h1 {
   text-align: center;
   font-size: 26px;
-  margin-bottom: 20px;
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  margin-bottom: 24px;
+  font-weight: 900;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 /* =========================
@@ -101,20 +119,20 @@ h1 {
 ========================= */
 .topbar {
   position: fixed;
-  bottom: 20px;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   width: calc(100% - 40px);
   max-width: 400px;
-  z-index: 100;
+  z-index: 1000;
   display: flex;
-  justify-content: space-around;
   gap: 8px;
   padding: 8px;
-  backdrop-filter: blur(18px);
-  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
 }
 
 .nav-pill {
@@ -132,13 +150,13 @@ h1 {
 .topbar button {
   flex: 1;
   border: none;
-  padding: 12px 8px;
+  padding: 14px 4px;
   border-radius: 999px;
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: 0.3s;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: bold;
   z-index: 1;
 }
@@ -148,7 +166,7 @@ h1 {
 }
 
 /* =========================
-   天気カード
+   天気メインカード
 ========================= */
 .location {
   text-align: center;
@@ -162,39 +180,39 @@ h1 {
   align-items: center;
   justify-content: center;
   gap: 20px;
-  padding: 24px;
-  border-radius: 28px;
+  padding: 28px 20px;
+  border-radius: 30px;
   backdrop-filter: blur(20px);
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--glass-border);
   margin-bottom: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
 .weather-icon {
-  font-size: 54px;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
-}
-
-.weather-info {
-  text-align: left;
+  font-size: 60px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
 }
 
 .weather-info .label {
   font-size: 12px;
-  opacity: 0.7;
+  opacity: 0.6;
   margin-bottom: 2px;
 }
 
 .weather-info .value {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 800;
 }
 
+/* =========================
+   詳細グリッド
+========================= */
 .weather-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
+  margin-bottom: 16px;
 }
 
 .card {
@@ -202,69 +220,95 @@ h1 {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 24px;
-  padding: 16px 12px;
+  padding: 18px 12px;
   text-align: center;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.label {
+.card .label {
   font-size: 11px;
   opacity: 0.6;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
 }
 
-.value {
-  font-size: 20px;
+.card .value {
+  font-size: 22px;
   font-weight: 800;
-  color: #fff;
 }
 
 #result {
-  margin-top: 16px;
+  margin-top: 12px;
   padding: 24px;
   border-radius: 28px;
   text-align: center;
   backdrop-filter: blur(20px);
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   font-size: 22px;
   font-weight: bold;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
 /* =========================
-   表とマップ
+   判定基準表 (info)
 ========================= */
 .info {
-  margin-top: 20px;
-  padding: 16px;
-  border-radius: 24px;
-  background: var(--glass-bg);
-  overflow-x: auto;
+  margin-top: 24px;
+  padding: 8px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--glass-border);
+  overflow: hidden;
 }
 
 .info table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  color: white;
 }
 
-.info th, .info td {
-  padding: 12px 8px;
+.info th {
+  background: rgba(255, 255, 255, 0);
+  font-size: 11px;
+  font-weight: bold;
+  padding: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+.info td {
+  padding: 16px 12px;
+  font-size: 14px;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.info tr:last-child td {
+  border-bottom: none;
+}
+
+.info td:first-child {
+  font-weight: bold;
+  opacity: 0.9;
+}
+
+.info td:last-child {
+  font-size: 15px;
+}
+
+/* =========================
+   地図
+========================= */
 .map-box {
-  height: 320px;
-  border-radius: 28px;
+  height: 350px;
+  border-radius: 32px;
   overflow: hidden;
   margin-top: 20px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 iframe {
@@ -274,46 +318,44 @@ iframe {
 }
 
 /* =========================
-   方向センサー・コンパス
+   方向センサー & コンパス
 ========================= */
 #orientation-btn {
   display: block;
   width: 100%;
-  padding: 18px;
+  padding: 20px;
   margin-bottom: 24px;
   font-size: 16px;
   font-weight: bold;
   border: none;
-  border-radius: 20px;
+  border-radius: 24px;
   background: linear-gradient(135deg, #2563eb, #4facfe);
   color: white;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
 }
 
 .sensor-container {
-  padding: 30px 16px;
+  padding: 32px 16px;
   border-radius: 32px;
-  text-align: center;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 28px;
 }
 
 .compass {
   position: relative;
-  width: 220px;
-  height: 220px;
+  width: 240px;
+  height: 240px;
   border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.25);
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(0,0,0,0.5);
+  box-shadow: 0 0 60px rgba(0,0,0,0.4), inset 0 0 30px rgba(0,0,0,0.5);
 }
 
 .compass-rose {
@@ -324,18 +366,17 @@ iframe {
 
 .mark {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 24px;
   left: 50%;
-  margin-left: -10px;
+  margin-left: -12px;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 16px;
 }
 
-.north { top: 10px; color: var(--danger-red); }
-.east  { right: 10px; top: 50%; margin-top: -10px; left: auto; }
-.south { bottom: 10px; }
-.west  { left: 10px; top: 50%; margin-top: -10px; }
+.north { top: 12px; color: var(--danger-red); }
+.east  { right: 12px; top: 50%; margin-top: -10px; left: auto; }
+.south { bottom: 12px; }
+.west  { left: 12px; top: 50%; margin-top: -10px; }
 
 .needle {
   position: absolute;
@@ -351,7 +392,7 @@ iframe {
   position: absolute;
   top: 15px;
   width: 4px;
-  height: 85px;
+  height: 105px;
   border-radius: 2px;
 }
 
@@ -359,23 +400,23 @@ iframe {
   content: "▲";
   position: absolute;
   top: 5px;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .device-needle::before { background: var(--primary-blue); }
 .device-needle::after  { color: var(--primary-blue); }
 
 .wind-needle { transition: transform 0.5s ease-out; }
-.wind-needle::before { background: var(--accent-yellow); height: 70px; top: 30px; }
+.wind-needle::before { background: var(--accent-yellow); height: 80px; top: 40px; }
 .wind-needle::after  { color: var(--accent-yellow); top: 20px; }
 
 .needle-label {
   position: absolute;
-  top: -20px;
+  top: -24px;
   background: rgba(0, 0, 0, 0.6);
-  padding: 1px 6px;
-  border-radius: 8px;
-  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
 }
 
 .sensor-info {
@@ -385,10 +426,10 @@ iframe {
 }
 
 .info-item {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 16px 10px;
-  border-radius: 20px;
   flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 16px 12px;
+  border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -396,39 +437,27 @@ iframe {
   display: block;
   font-size: 10px;
   opacity: 0.6;
-  margin-bottom: 6px;
-  letter-spacing: 0.5px;
+  margin-bottom: 4px;
 }
 
 .info-item .value {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
 }
 
-.hint { font-size: 12px; opacity: 0.7; }
+.hint { font-size: 12px; opacity: 0.6; }
 
 /* =========================
-   デスクトップ向け調整 (タブレット以上)
+   デスクトップ向け調整
 ========================= */
 @media (min-width: 601px) {
   .container { padding: 0 40px; }
-  h1 { font-size: 42px; }
+  h1 { font-size: 48px; }
   
   .topbar {
     top: 0; bottom: auto;
     width: 100%; max-width: none;
     border-radius: 0; transform: none; left: 0;
-    padding: 12px; background: rgba(0, 0, 0, 0.2);
+    padding: 16px;
   }
-
-  .topbar button { flex: none; padding: 10px 24px; font-size: 15px; }
-  .topbar button:hover { background: rgba(255, 255, 255, 0.15); }
-
-  .weather-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
-  .value { font-size: 34px; }
-  
-  .compass { width: 280px; height: 280px; }
-  .mark { font-size: 18px; }
-  .info-item .value { font-size: 22px; }
-  .map-box { height: 450px; }
 }
