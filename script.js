@@ -104,7 +104,13 @@ function updateWeatherUI(temp, humidity, windSpeed, windDeg, gusts, code) {
     const iconEl = document.getElementById("weather-icon");
     const windDirTextEl = document.getElementById("windDirection");
 
-    const w = weatherCodes[code] || { name: "不明", icon: "❓" };
+    let w = weatherCodes[code] || { name: "不明", icon: "❓" };
+    
+    // 台風判定 (風速 17.2m/s 以上)
+    if (windSpeed >= 17.2) {
+        w = { name: "暴風", icon: "🌀" };
+    }
+
     if (weatherEl) weatherEl.textContent = w.name;
     if (iconEl) iconEl.textContent = w.icon;
 
@@ -138,7 +144,11 @@ function updateResult(temp, humidity, windSpeed, gusts, code) {
 
     const isBadWeather = (code >= 51 && code <= 67) || (code >= 71 && code <= 82) || code >= 95;
     
-    if (isBadWeather) {
+    // 台風判定 (風速 17.2m/s 以上)
+    if (windSpeed >= 17.2) {
+        result = "🌀 暴風";
+        sub = "外でのプレイは不可能です屋内を強く推奨します。";
+    } else if (isBadWeather) {
         result = "☔ プレイ困難 (荒天)";
         sub = "雨や雪が降っています。屋内を推奨します。";
     } else if (windSpeed <= 1.0 && (gusts === null || gusts <= 2.0)) {
