@@ -589,7 +589,8 @@ iframe {
   .topbar {
     position: sticky !important;
     top: 0; bottom: auto;
-    width: 100%; max-width: none;
+    width: 100%;
+    max-width: none;
     border-radius: 0; transform: none; left: 0;
     padding: 16px;
   }
