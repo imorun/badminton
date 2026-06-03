@@ -78,6 +78,72 @@ canvas {
 }
 
 /* =========================
+   ローディング画面
+========================= */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(20px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.6s ease, visibility 0.6s;
+}
+
+.loader-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loader-content {
+  text-align: center;
+  color: white;
+}
+
+.shuttle-spinner {
+  font-size: 60px;
+  margin-bottom: 20px;
+  animation: shuttleFloat 1.5s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes shuttleFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-20px) rotate(20deg); }
+  75% { transform: translateY(20px) rotate(-20deg); }
+}
+
+.loader-text {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.loader-sub {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.loader-bar-container {
+  width: 200px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin: 20px auto 0;
+  overflow: hidden;
+}
+
+.loader-bar {
+  width: 0%;
+  height: 100%;
+  background: var(--primary-blue);
+  box-shadow: 0 0 10px var(--primary-blue);
+}
+
+/* =========================
    レイアウト構造
 ========================= */
 .container {
@@ -86,16 +152,15 @@ canvas {
   max-width: 800px;
   margin: 0 auto;
   overflow-x: hidden;
-  padding: env(safe-area-inset-top) 20px 0 20px;
+  padding: env(safe-area-inset-top) 0 0 0;
 }
 
 section {
   display: none;
   width: 100%;
   min-height: 100vh;
-  padding: 40px 16px 140px 16px;
+  padding: 40px 36px 140px 36px;
   box-sizing: border-box;
-  transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1), opacity 0.4s ease;
   will-change: transform, opacity;
 }
 
@@ -161,7 +226,6 @@ h1 {
   width: calc((100% - 16px - 16px) / 3);
   background: rgba(255, 255, 255, 0.25);
   border-radius: 999px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: -1;
 }
 
@@ -327,6 +391,7 @@ h1 {
    地図
 ========================= */
 .map-box {
+  position: relative;
   height: 350px;
   border-radius: 32px;
   overflow: hidden;
@@ -335,10 +400,53 @@ h1 {
   border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
+.map-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.3s, opacity 0.3s;
+  pointer-events: auto;
+  opacity: 0;
+}
+
+.map-overlay span {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: white;
+  backdrop-filter: blur(4px);
+  transform: scale(0.8);
+  transition: transform 0.3s;
+}
+
+.map-box.touching .map-overlay {
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 1;
+}
+
+.map-box.touching .map-overlay span {
+  transform: scale(1);
+}
+
+.map-box.interact .map-overlay {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.map-box.interact iframe {
+  pointer-events: auto;
+}
+
 iframe {
   width: 100%;
   height: 100%;
   border: none;
+  pointer-events: none;
 }
 
 /* =========================

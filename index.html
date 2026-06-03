@@ -11,6 +11,17 @@
 
 <body>
 
+    <div id="loader" class="loader-overlay">
+        <div class="loader-content">
+            <div class="shuttle-spinner">🏸</div>
+            <div class="loader-text">現在位置を確認中...</div>
+            <div class="loader-sub">天気を読み込んでいます</div>
+            <div class="loader-bar-container">
+                <div id="loaderBar" class="loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
     <canvas id="canvas"></canvas>
 
     <div class="topbar">
@@ -56,7 +67,7 @@
                 </div>
 
                 <div class="card">
-                    <div class="label">風速</div>
+                    <div class="label">最大風速</div>
                     <div class="value" id="wind">--</div>
                 </div>
 
@@ -100,8 +111,8 @@
                     </tr>
 
                     <tr>
-                        <td>風速 17.2m/s 以上</td>
-                        <td>🌀 台風並</td>
+                        <td>最大風速 17.2m/s 以上</td>
+                        <td>🌀 暴風</td>
                     </tr>
                 </table>
             </div>
@@ -110,6 +121,9 @@
         <section id="map">
             <h1>🗺 現在位置マップ</h1>
             <div class="map-box">
+                <div class="map-overlay" id="mapOverlay">
+                    <span>指2本で地図を操作</span>
+                </div>
                 <iframe src="https://maps.google.com/maps?q=35.6327937,139.5504509&z=16&output=embed">
                 </iframe>
             </div>
@@ -153,6 +167,8 @@
         </section>
     </div>
     <script src="https://cdn.jsdelivr.net/gh/imorun/cdn@main/browser-info.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
     <script src="script.js"></script>
 </body>
 

@@ -72,7 +72,12 @@ async function getLocation() {
 
 async function loadWeather() {
     try {
+        // ロードバー開始
+        gsap.to('#loaderBar', { width: '30%', duration: 0.5 });
+        
         const loc = await getLocation();
+        gsap.to('#loaderBar', { width: '60%', duration: 0.5 });
+
         const locationEl = document.querySelector(".location");
         if (locationEl) locationEl.textContent = `${loc.name} (${loc.lat.toFixed(5)}, ${loc.lon.toFixed(5)})`;
 
@@ -89,9 +94,32 @@ async function loadWeather() {
         updateWeatherUI(current.temperature_2m, current.relative_humidity_2m, windSpeed, windDeg, gusts, code);
         updateResult(current.temperature_2m, current.relative_humidity_2m, windSpeed, gusts, code);
         updateMap(loc.lat, loc.lon);
+        
+        gsap.to('#loaderBar', { 
+            width: '100%', 
+            duration: 0.3, 
+            onComplete: () => {
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    gsap.to(loader, {
+                        opacity: 0,
+                        duration: 0.5,
+                        onComplete: () => loader.style.visibility = 'hidden'
+                    });
+                }
+            }
+        });
     } catch (err) {
         console.error(err);
         document.getElementById("result").textContent = "天気取得失敗";
+        const loader = document.getElementById('loader');
+        if (loader) {
+            gsap.to(loader, {
+                opacity: 0,
+                duration: 0.5,
+                onComplete: () => loader.style.visibility = 'hidden'
+            });
+        }
     }
 }
 
@@ -132,9 +160,13 @@ function updateWeatherUI(temp, humidity, windSpeed, windDeg, gusts, code) {
 
     if (windDeg !== null) {
         const arrow = document.getElementById("arrow");
-        if (arrow) arrow.style.transform = `rotate(${windDeg}deg)`;
+        if (arrow) {
+            gsap.to(arrow, { rotation: windDeg, duration: 1, ease: "back.out(1.7)" });
+        }
         const windNeedleEl = document.getElementById("windNeedle");
-        if (windNeedleEl) windNeedleEl.style.transform = `rotate(${windDeg}deg)`;
+        if (windNeedleEl) {
+            gsap.to(windNeedleEl, { rotation: windDeg, duration: 1, ease: "back.out(1.7)" });
+        }
     }
 }
 
@@ -143,9 +175,10 @@ function updateResult(temp, humidity, windSpeed, gusts, code) {
     let sub = "";
 
     const isBadWeather = (code >= 51 && code <= 67) || (code >= 71 && code <= 82) || code >= 95;
-    
-    // 台風判定 (風速 17.2m/s 以上)
-    if (windSpeed >= 17.2) {
+    const maxWind = (gusts !== null && gusts > windSpeed) ? gusts : windSpeed;
+
+    // 台風判定 (最大風速 17.2m/s 以上)
+    if (maxWind >= 17.2) {
         result = "🌀 暴風";
         sub = "外でのプレイは不可能です屋内を強く推奨します。";
     } else if (isBadWeather) {
@@ -153,7 +186,7 @@ function updateResult(temp, humidity, windSpeed, gusts, code) {
         sub = "雨や雪が降っています。屋内を推奨します。";
     } else if (windSpeed <= 1.0 && (gusts === null || gusts <= 2.0)) {
         result = "🏸 最高のコンディション";
-        sub = "風も穏やかで、絶好のバドミントン日和です！";
+        sub = "風も穏やかで、絶好 of バドミントン日和です！";
     } else if (windSpeed > 4.5 || (gusts !== null && gusts > 7.0)) {
         result = "🌪 プレイ困難 (強風)";
         sub = "シャトルが激しく流されます。";
@@ -165,6 +198,7 @@ function updateResult(temp, humidity, windSpeed, gusts, code) {
     const resultEl = document.getElementById("result");
     if (resultEl) {
         resultEl.innerHTML = `<div style="font-size: 1.2em; margin-bottom: 4px;">${result}</div><div style="font-size: 0.6em; font-weight: normal; opacity: 0.8;">${sub}</div>`;
+        gsap.fromTo(resultEl, { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.2)" });
     }
 }
 
@@ -180,7 +214,15 @@ function updateMenuUI(id) {
     buttons.forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(`btn-${id}`);
     if (activeBtn) activeBtn.classList.add('active');
-    if (navPill) navPill.style.transform = `translateX(calc(${idx * 100}% + ${idx * 8}px))`;
+    
+    if (navPill) {
+        gsap.to(navPill, {
+            xPercent: idx * 100,
+            x: idx * 8,
+            duration: 0.3,
+            ease: "power2.out"
+        });
+    }
 }
 
 const pageOrder = ['weather', 'map', 'sensor'];
@@ -200,9 +242,8 @@ function showPage(nextId, skipAnimation = false) {
     if (skipAnimation) {
         pageOrder.forEach(id => {
             const el = document.getElementById(id);
-            el.classList.remove('active', 'no-transition');
-            el.style.transform = '';
-            el.style.display = '';
+            el.classList.remove('active');
+            gsap.set(el, { x: 0, opacity: 1, display: (id === nextId ? 'block' : 'none') });
         });
         nextEl.classList.add('active');
         currentPageId = nextId;
@@ -214,24 +255,40 @@ function showPage(nextId, skipAnimation = false) {
     isTransitioning = true;
     const direction = nextIdx > currentIdx ? 1 : -1;
     container.classList.add('swiping');
+
+    // 次の要素の初期化、他を隠す
     pageOrder.forEach(id => {
-        const el = document.getElementById(id);
-        if (id !== currentPageId) { el.style.display = 'none'; el.style.transform = ''; }
+        if (id !== currentPageId && id !== nextId) {
+            gsap.set(document.getElementById(id), { display: 'none' });
+        }
     });
-    nextEl.style.transition = 'none';
-    nextEl.style.transform = `translateX(${direction * 100}%)`;
-    nextEl.style.display = 'block';
-    setTimeout(() => {
-        nextEl.style.transition = '';
-        currentEl.style.transform = `translateX(${-direction * 100}%)`;
-        nextEl.style.transform = 'translateX(0)';
-        setTimeout(() => { showPage(nextId, true); }, 400);
-    }, 20);
-    if (nextId !== currentPageId) window.scrollTo(0, 0);
+    gsap.set(nextEl, { x: direction * 100 + "%", display: 'block', opacity: 1 });
+
+    const tl = gsap.timeline({
+        onComplete: () => {
+            showPage(nextId, true);
+        }
+    });
+
+    tl.to(currentEl, {
+        x: -direction * 100 + "%",
+        duration: 0.3,
+        ease: "power2.inOut"
+    }, 0);
+
+    tl.to(nextEl, {
+        x: "0%",
+        duration: 0.3,
+        ease: "power2.inOut"
+    }, 0);
+
+    if (nextId !== currentPageId) {
+        gsap.to(window, { scrollTo: 0, duration: 0.3, ease: "power2.out" });
+    }
 }
 
 /* =========================
-   スワイプ操作 (リアルタイム)
+   スワイプ操作 (GSAP併用)
 ========================= */
 let touchStartX = 0;
 let touchStartY = 0;
@@ -272,20 +329,20 @@ document.addEventListener('touchmove', e => {
         e.preventDefault(); 
         const currentIdx = pageOrder.indexOf(currentPageId);
         const currentEl = document.getElementById(currentPageId);
-        currentEl.style.transform = `translateX(${diffX}px)`;
-        currentEl.classList.add('no-transition');
+        
+        gsap.set(currentEl, { x: diffX });
+        
         pageOrder.forEach((id, idx) => {
             if (id === currentPageId) return;
             const el = document.getElementById(id);
             if (Math.abs(idx - currentIdx) <= 1) {
                 const offset = (idx - currentIdx) * width;
-                el.style.transform = `translateX(${offset + diffX}px)`;
-                el.style.display = 'block';
-                el.classList.add('no-transition');
-            }else {
-                el.style.display = 'none';
+                gsap.set(el, { x: offset + diffX, display: 'block' });
+            } else {
+                gsap.set(el, { display: 'none' });
             }
         });
+
         let projectedId = currentPageId;
         if (diffX < -width * 0.5 && currentIdx < pageOrder.length - 1) projectedId = pageOrder[currentIdx + 1];
         else if (diffX > width * 0.5 && currentIdx > 0) projectedId = pageOrder[currentIdx - 1];
@@ -311,34 +368,76 @@ document.addEventListener('touchend', e => {
     const nextId = pageOrder[nextIdx];
     const currentEl = document.getElementById(currentPageId);
 
-    pageOrder.forEach(id => document.getElementById(id).classList.remove('no-transition'));
     isTransitioning = true;
+
+    const tl = gsap.timeline({
+        onComplete: () => {
+            showPage(nextId, true);
+            document.body.classList.remove('lock-scroll'); 
+            isSwiping = false;
+            isScrollingIntent = false;
+        }
+    });
 
     if (nextId !== currentPageId) {
         const direction = nextIdx > currentIdx ? 1 : -1;
-        currentEl.style.transform = `translateX(${-direction * 100}%)`;
-        document.getElementById(nextId).style.transform = 'translateX(0)';
+        const nextEl = document.getElementById(nextId);
+        
+        tl.to(currentEl, { x: -direction * 100 + "%", duration: 0.25, ease: "power2.out" }, 0);
+        tl.to(nextEl, { x: "0%", duration: 0.25, ease: "power2.out" }, 0);
+        
+        gsap.to(window, { scrollTo: 0, duration: 0.25, ease: "power2.out" });
     } else {
-        currentEl.style.transform = 'translateX(0)';
+        tl.to(currentEl, { x: "0%", duration: 0.2, ease: "power2.out" }, 0);
         pageOrder.forEach((id, idx) => {
             if (id === currentPageId) return;
             const el = document.getElementById(id);
-            if (Math.abs(idx - currentIdx) <= 1) el.style.transform = `translateX(${(idx - currentIdx) * width}px)`;
+            if (Math.abs(idx - currentIdx) <= 1) {
+                tl.to(el, { x: (idx - currentIdx) * 100 + "%", duration: 0.2, ease: "power2.out" }, 0);
+            }
         });
     }
 
     updateMenuUI(nextId);
-    setTimeout(() => {
-        showPage(nextId, true);
-    }, 400);
-
-    document.body.classList.remove('lock-scroll'); 
-    isSwiping = false;
-    isScrollingIntent = false;
-    }, { passive: true });
+}, { passive: true });
 
 const compassRose = document.getElementById("compassRose");
 const deviceHeadingTextEl = document.getElementById("deviceHeading");
+
+/* =========================
+   地図の2本指操作
+========================= */
+const mapOverlay = document.getElementById('mapOverlay');
+const mapBox = mapOverlay ? mapOverlay.parentElement : null;
+
+if (mapBox) {
+    mapBox.addEventListener('touchstart', e => {
+        if (e.touches.length >= 2) {
+            mapBox.classList.add('interact');
+        } else {
+            mapBox.classList.add('touching');
+        }
+    }, { passive: true });
+
+    mapBox.addEventListener('touchend', e => {
+        if (e.touches.length === 0) {
+            mapBox.classList.remove('interact', 'touching');
+        }
+    }, { passive: true });
+
+    // パソコン向け: Ctrlキーを押している間は操作可能にする
+    window.addEventListener('keydown', e => {
+        if (e.key === 'Control') {
+            mapBox.classList.add('interact');
+        }
+    });
+
+    window.addEventListener('keyup', e => {
+        if (e.key === 'Control') {
+            mapBox.classList.remove('interact');
+        }
+    });
+}
 
 function handleOrientation(e) {
     let heading = 0;
