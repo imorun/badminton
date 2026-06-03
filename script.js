@@ -294,6 +294,7 @@ let touchStartX = 0;
 let touchStartY = 0;
 let isSwiping = false;
 let isScrollingIntent = false;
+let isTouchingMap = false;
 
 document.addEventListener('touchstart', e => {
     if (isTransitioning) return;
@@ -301,9 +302,39 @@ document.addEventListener('touchstart', e => {
     touchStartY = e.changedTouches[0].clientY;
     isSwiping = false;
     isScrollingIntent = false;
-}, { passive: true });
+    
+    const mapBox = document.querySelector('.map-box');
+    if (mapBox) {
+        const rect = mapBox.getBoundingClientRect();
+        const isInMap = touchStartX >= rect.left && touchStartX <= rect.right &&
+                        touchStartY >= rect.top && touchStartY <= rect.bottom;
+        
+        if (isInMap) {
+            if (e.touches.length >= 2) {
+                mapBox.classList.add('interact');
+                mapBox.classList.remove('touching');
+                isTouchingMap = true;
+            } else if (!mapBox.classList.contains('interact')) {
+                mapBox.classList.add('touching');
+                isTouchingMap = false;
+            } else {
+                // すでにinteract状態なら、1本指でもスワイプさせない
+                isTouchingMap = true;
+            }
+        } else {
+            isTouchingMap = false;
+        }
+    } else {
+        isTouchingMap = false;
+    }
+}, { passive: false });
 
 document.addEventListener('touchmove', e => {
+    if (isTouchingMap) {
+        // interact状態ならブラウザの挙動を抑制
+        if (e.cancelable) e.preventDefault();
+        return;
+    }
     if (isTransitioning || isScrollingIntent) return;
     
     const touchX = e.changedTouches[0].clientX;
@@ -351,6 +382,14 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 
 document.addEventListener('touchend', e => {
+    if (e.touches.length === 0) {
+        const mapBox = document.querySelector('.map-box');
+        if (mapBox) {
+            mapBox.classList.remove('interact', 'touching');
+        }
+        isTouchingMap = false;
+    }
+
     if (isScrollingIntent) {
         isScrollingIntent = false;
         return;
@@ -399,7 +438,7 @@ document.addEventListener('touchend', e => {
     }
 
     updateMenuUI(nextId);
-}, { passive: true });
+}, { passive: false });
 
 const compassRose = document.getElementById("compassRose");
 const deviceHeadingTextEl = document.getElementById("deviceHeading");
@@ -411,20 +450,6 @@ const mapOverlay = document.getElementById('mapOverlay');
 const mapBox = mapOverlay ? mapOverlay.parentElement : null;
 
 if (mapBox) {
-    mapBox.addEventListener('touchstart', e => {
-        if (e.touches.length >= 2) {
-            mapBox.classList.add('interact');
-        } else {
-            mapBox.classList.add('touching');
-        }
-    }, { passive: true });
-
-    mapBox.addEventListener('touchend', e => {
-        if (e.touches.length === 0) {
-            mapBox.classList.remove('interact', 'touching');
-        }
-    }, { passive: true });
-
     // パソコン向け: Ctrlキーを押している間は操作可能にする
     window.addEventListener('keydown', e => {
         if (e.key === 'Control') {

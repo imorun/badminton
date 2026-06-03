@@ -398,6 +398,7 @@ h1 {
   margin-top: 20px;
   box-shadow: 0 12px 45px rgba(0, 0, 0, 0.4);
   border: 2px solid rgba(255, 255, 255, 0.1);
+  touch-action: pan-y;
 }
 
 .map-overlay {
@@ -408,9 +409,10 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: background 0.3s, opacity 0.3s;
+  transition: background 0.15s, opacity 0.15s;
   pointer-events: auto;
   opacity: 0;
+  touch-action: pan-y;
 }
 
 .map-overlay span {
@@ -421,7 +423,7 @@ h1 {
   color: white;
   backdrop-filter: blur(4px);
   transform: scale(0.8);
-  transition: transform 0.3s;
+  transition: transform 0.15s;
 }
 
 .map-box.touching .map-overlay {
@@ -431,6 +433,10 @@ h1 {
 
 .map-box.touching .map-overlay span {
   transform: scale(1);
+}
+
+.map-box.interact {
+  touch-action: none;
 }
 
 .map-box.interact .map-overlay {
